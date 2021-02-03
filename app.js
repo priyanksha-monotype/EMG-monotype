@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
     service: 'outlook',
     auth: {
       user: 'priyanksha.srivastava@monotype.com', //msipl email
-      pass: 'Maapapa@30'  //msipl paassword
+      pass: ''  //msipl paassword
     }
   });
   
