@@ -1,10 +1,9 @@
 let express = require('express');
 let mongoose = require('mongoose');
-// Require model
-const User = require('./model/userDetails.js');
-
 const nodemailer = require('nodemailer');
 
+// User model
+const User = require('./model/userDetails.js');
 const PORT = 3000;
 
 // Connect to MongoDB
