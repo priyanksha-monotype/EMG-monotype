@@ -62,14 +62,81 @@ app.get("/verifyEmail", function(req, res) {
     const filter = { userEmail: req.query.emailId.toLocaleLowerCase() };
     const update = { isVerified: true };
     User.findOneAndUpdate(filter, update)
-    .then((res) => {
-        console.log("Verification success");
-        console.log(res);
+    .then((result) => {
+        res.json("Verification success");
+        console.log(result);
+
     })
       .catch(function(err) {
         console.log("Verification failed");
+        res.json(err);
       });
   });
+
+// Route for posting the data
+app.post("/updateForEntry", function(req, res) {
+  console.log("Adding rose entry");
+  const { emailId, sendToEmail} = req.body;
+  const filter = { userEmail: emailId.toLocaleLowerCase() };
+  const update = { sendToEmailId: sendToEmail };
+  //Check the user sending rose if he had already sent the email
+
+  User.findOne({userEmail: emailId.toLocaleLowerCase()}).then((user) => {
+    //check if user account is verified
+    if(user.isVerified)  {
+      //check if user already sent roses to someone
+      if(user.sendToEmailId) {
+        res.json('You already send roses for someone!!');
+      } else {
+        //update sending user entry for rose
+        User.findOneAndUpdate(filter, update)
+        .then((resp) => {
+          const filter = { userEmail: sendToEmail.toLocaleLowerCase() };
+          const update = { receivedFromEmailId: emailId };
+          // create or update receiver's entry 
+          User.findOneAndUpdate(filter, update, { upsert: true, new: true, setDefaultsOnInsert: true })
+            .then(() => {
+              console.log("Updation receiver success");
+            }).catch((e) => { 
+              console.log(e, 'Updation receiver failed');
+            });
+          console.log("Updation sender success");
+          res.json(resp);
+        })
+          .catch(function(err) {
+            res.json(err);
+            console.log("Updation sender failed", err);
+          });
+      }
+    } else {
+      throw Error('Email id needs to be verified.');
+    }
+  })
+  .catch(function(err) {
+    console.log("Invalid user id.", err);
+    res.json('Email id either doesn`t exist or not verified.');
+  });
+});
+
+// Route for login the user
+app.post("/login", function(req, res) {
+  console.log("Login start");
+  const { emailId, password} = req.body;
+  User.findOne({userEmail: emailId.toLocaleLowerCase(), userPassword: password})
+  .then((response) => {
+    if(response.isVerified)  {
+      console.log("Login success");
+      console.log(res);
+      res.json(response);
+    } else {
+      res.json('Email id needs to be verified.');
+    }
+  })
+    .catch(function(err) {
+      console.log("Useremail or password not valid.");
+      res.json("Useremail or password not valid.", err);
+    });
+});
 
   // Start the server
   app.listen(PORT, function() {
