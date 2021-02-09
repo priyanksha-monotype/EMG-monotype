@@ -398,12 +398,25 @@
       </div>
   </footer>
   <div class="context">
-    <div class="display">
-      <h1>Someting went wrong</h1>
-      <p>We are enable to verify your email id.  You can create a new account with your email id or contact to EMG team.</p>
-        <a href="/login" class="btn is-white">Sign In</a>
+    <div class="display" id="main-screen">
+      <h1>Leaderboard</h1>
+      <table>
+        <tr>
+          <th>Email</th>
+          <th>Count</th>
+        </tr>
+        <% for(var i=0; i < data.length; i++) { %>
+          <tr>
+            <td>
+              <%= data[i].email %>
+            </td>
+            <td>
+              <%= data[i].count %>
+            </td>
+          </tr>
+          <% } %>
+      </table>
     </div>
   </div>
 </body>
-
 </html>

@@ -168,6 +168,14 @@ app.get("/signupsuccess", function (req, res) {
   res.render("signupsuccess");
 });
 
+app.get("/leaderboard", function (req, res) {
+  const leadersData = [
+    { 'email': 'priyanksha.srivastva@monotype.com', 'count': 4 },
+    { 'email': 'sumit.mann@monotype.com', 'count': 0 },
+  ];
+  res.render("leaderboard", { data: leadersData });
+});
+
 // Start the server
 app.listen(PORT, function () {
   console.log("Listening on port " + PORT + ".");
