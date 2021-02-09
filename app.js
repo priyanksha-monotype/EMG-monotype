@@ -58,13 +58,13 @@ function isLoggedIn(request, response, next) {
 const transporter = nodemailer.createTransport({
     service: 'outlook',
     auth: {
-      user: 'sumit.mann@monotype.com', //msipl email
-      pass: 'EKan$h2019'  //msipl paassword
+      user: 'emg@monotype.com', //msipl email
+      pass: 'MonoUser123#'  //msipl paassword
     }
   });
   
 const mailOptions = {
-    from: 'sumit.mann@monotype.com',  //msipl email
+    from: 'emg@monotype.com',  //msipl email
     subject: 'Sending Email to test',
 };
 
@@ -145,7 +145,7 @@ app.post("/updateForEntry", function(req, res) {
   const update = { sendToEmailId: sendToEmail };
   //Check the user sending rose if he had already sent the email
 
-  User.findOne({userEmail: emailId.toLocaleLowerCase()}).then((user) => {
+  User.findOne({username: emailId.toLocaleLowerCase()}).then((user) => {
     //check if user account is verified
     if(user.isVerified)  {
       //check if user already sent roses to someone
@@ -155,15 +155,6 @@ app.post("/updateForEntry", function(req, res) {
         //update sending user entry for rose
         User.findOneAndUpdate(filter, update)
         .then((resp) => {
-          const filter = { userEmail: sendToEmail.toLocaleLowerCase() };
-          const update = { receivedFromEmailId: emailId };
-          // create or update receiver's entry 
-          User.findOneAndUpdate(filter, update, { upsert: true, new: true, setDefaultsOnInsert: true })
-            .then(() => {
-              console.log("Updation receiver success");
-            }).catch((e) => { 
-              console.log(e, 'Updation receiver failed');
-            });
           console.log("Updation sender success");
           res.json(resp);
         })
