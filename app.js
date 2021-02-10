@@ -80,7 +80,7 @@ app.post('/login', async (req, res) => {
           return res.status(401).json({ error: "Password is incorrect." });
         }
       } else {
-        return res.status(401).json({ error: "Email is not verified. Please verify." });
+        return res.status(401).json({ error: "Email is not verified. Kindly check your email to proceed further." });
       }
     } else {
       return res.status(400).json({ error: "No user found." });
@@ -98,11 +98,11 @@ app.post("/registration", function (req, res) {
       const buff = new Buffer(user.username);
       const encodedUsername  = buff.toString('base64');
       const link = "http://localhost:3011/verifyEmail?emailId=" + encodedUsername;
-      mailOptions.html = 'Thanks for registration!! Please verify your email. <a href="' + link + '">Verify!!</a>'
+      mailOptions.html = 'Thank you for your registration!! Kindly verify your email. <a href="' + link + '">Verify!!</a>'
 
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
-          return res.status(401).json({ error: "Error sending verification email. Please contact to EMG." });
+          return res.status(401).json({ error: "Error sending verification email. Kindly contact to Event Committee." });
         } else {
           return res.status(200).json({ success: "We have sent a verification email to you. Please verify your email." });
         }
@@ -123,7 +123,7 @@ app.post("/updateForEntry", async (req, res) => {
   const sendEmailTo = sendToEmail.toLocaleLowerCase();
   const senderEmail = req.session.user.username;
   if (senderEmail == sendEmailTo) {
-    return res.status(401).json({ error: "Nice try, please send gettings to your colleagues :)" });
+    return res.status(401).json({ error: "Nice try, please send getting to your colleague :)" });
   }
 
   try {
@@ -136,11 +136,11 @@ app.post("/updateForEntry", async (req, res) => {
         const update = { sendToEmailId: sendToEmail };
         User.findOneAndUpdate(filter, update , (err, result) => {
           if(!err) {
-            return res.status(200).json({ success: "Greetings sent successfully." });
+            return res.status(200).json({ success: "Greeting sent successfully." });
           }
           })
           .catch(function (err) {
-            return res.status(401).json({ error: "Unable to send greetings." });
+            return res.status(401).json({ error: "Unable to send greeting. Please try again." });
           });
       }
     } else {

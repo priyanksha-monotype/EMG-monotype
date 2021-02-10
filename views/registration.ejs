@@ -435,7 +435,7 @@
         type: 'POST',
         contentType: 'application/json'
       }).done(function (response) {
-        window.location.href = "/registrationsuccess";
+        window.location.href = "/signupsuccess";
       }).fail(function (response, error) {
         $('#form-error').text(JSON.parse(response.responseText).error);
       });
