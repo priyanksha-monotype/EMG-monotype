@@ -129,18 +129,15 @@ app.post("/updateForEntry", async (req, res) => {
   try {
     let user = await User.findOne({ username: senderEmail });
     if (user.isVerified) {
-      if (user.sendToEmailId.includes(sendEmailTo)) {
+      if (user.sendToEmailId) {
         return res.status(401).json({ error: "You have already sent greetings to this colleague." });
       } else {
         const filter = { username: senderEmail };
         const update = { sendToEmailId: sendToEmail };
-        User.findOneAndUpdate(filter, {
-          $push: {
-            'sendToEmailId': sendToEmail
-          }
-        },
-          { new: true }, (err, result) => {
+        User.findOneAndUpdate(filter, update , (err, result) => {
+          if(!err) {
             return res.status(200).json({ success: "Greetings sent successfully." });
+          }
           })
           .catch(function (err) {
             return res.status(401).json({ error: "Unable to send greetings." });

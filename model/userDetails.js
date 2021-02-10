@@ -17,10 +17,14 @@ const userDetailsSchema = new Schema({
         type: Boolean,
         required: false,
     },
-    sendToEmailId: [{
+    sendToEmailId: {
         type: String,
         required: false,
-    }]
+    }
+}, {
+    timestamps: {
+        createdAt: 'createdDate',
+    }
 });
 
 var userDetail = mongoose.model('userDetails', userDetailsSchema);
