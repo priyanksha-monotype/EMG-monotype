@@ -97,7 +97,7 @@ app.post("/registration", function (req, res) {
       mailOptions.to = user.username;
       const buff = new Buffer(user.username);
       const encodedUsername  = buff.toString('base64');
-      const link = "http://localhost:80/verifyEmail?emailId=" + encodedUsername;
+      const link = "http://18.207.193.14/verifyEmail?emailId=" + encodedUsername;
       mailOptions.html = 'Thank you for your registration!! Kindly verify your email. <a href="' + link + '">Verify!!</a>'
 
       transporter.sendMail(mailOptions, function (error, info) {
