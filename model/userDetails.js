@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const passportLocalMongoose = require("passport-local-mongoose");
 
 const Schema = mongoose.Schema;
 
@@ -18,17 +17,11 @@ const userDetailsSchema = new Schema({
         type: Boolean,
         required: false,
     },
-    sendToEmailId: {
+    sendToEmailId: [{
         type: String,
         required: false,
-    },
-    receivedFromEmailId: {
-        type: String,
-        required: false,
-    },
+    }]
 });
-
-userDetailsSchema.plugin(passportLocalMongoose);
 
 var userDetail = mongoose.model('userDetails', userDetailsSchema);
 module.exports = userDetail;

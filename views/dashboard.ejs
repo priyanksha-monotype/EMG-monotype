@@ -400,18 +400,14 @@
   <div class="context">
     <div class="display" id="main-screen">
       <h1>Welcome</h1>
-      <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's
-        standard
-        dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type
-        specimen
-        book.</p>
+      <p>Please enter the email id of person to whom you want to send greetings.</p>
         <form class="form" id="main-form">
           <div class="error" id="form-error"></div>
           <input type="email" class="input-text" id="email" placeholder="Email Id (e.g. abc@monotype.com)" />
           <button type="submit" class="btn" id="form-submit">Submit</button>
         </form>
     </div>
-    <div class="display is-hidden" id="success-screen">
+    <div class="display is-hidden" id="greeting-success">
         <h1>Thank you!! your greeting has been sent successfully.</h1>
         <button type="submit" class="btn is-white" id="send-more">Send more greetings</button>
     </div>
@@ -425,7 +421,7 @@
     });
     $('#send-more').on('click', function(){
       $('#main-screen').removeClass('is-hidden');
-      $('#email-success').addClass('is-hidden');
+      $('#greeting-success').addClass('is-hidden');
     });
     $('#form-submit').on('click', function (e) {
       e.preventDefault();
@@ -438,15 +434,15 @@
       $.ajax({
         url: formTarget,
         type: 'POST',
-        data: JSON.stringify({ "userEmail": email }),
+        data: JSON.stringify({ "sendToEmail": email }),
         type: 'POST',
         contentType: 'application/json'
       }).done(function (response) {
         $('#main-screen').addClass('is-hidden');
         $('#email').val('');
-        $('#email-success').removeClass('is-hidden');
+        $('#greeting-success').removeClass('is-hidden');
       }).fail(function (response, error) {
-        $('#form-error').text(response.responseText);
+        $('#form-error').text(JSON.parse(response.responseText).error);
       });
     });
   </script>

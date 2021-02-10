@@ -398,49 +398,25 @@
       </div>
   </footer>
   <div class="context">
-    <div class="display">
-      <h1>Sign up</h1>
-      <form class="form" id="main-form">
-        <div class="error" id="form-error"></div>
-        <input type="email" class="input-text" id="email" placeholder="Email Id (e.g. abc@monotype.com)" />
-        <input type="password" class="input-text" id="password" placeholder="Password" />
-        <button type="submit" class="btn" id="form-submit">Submit</button>
-        <p class="para">Already have an account</p>
-        <a href="/login" class="btn is-white">Sign in</a>
-      </form>
+    <div class="display" id="main-screen">
+      <h1>Leaderboard</h1>
+      <table>
+        <tr>
+          <th>Email</th>
+          <th>Count</th>
+        </tr>
+        <% for(var i=0; i < data.length; i++) { %>
+          <tr>
+            <td>
+              <%= data[i].email %>
+            </td>
+            <td>
+              <%= data[i].count %>
+            </td>
+          </tr>
+          <% } %>
+      </table>
     </div>
   </div>
-  <script src="https://code.jquery.com/jquery-2.2.4.min.js"
-    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-  <script>
-    let formTarget = '/registration';
-    $('.form input').on('focus', function(){
-      $('#form-error').text('');
-    });
-    $('#form-submit').on('click', function (e) {
-      e.preventDefault();
-      const email = $('#email').val();
-      const password = $('#password').val();
-      if (email.indexOf('@monotype.com') == -1) {
-        $('#form-error').text('Enter valid monotype.com email id (e.g. abc@monotype.com)');
-        return false;
-      } else if (password.length < 6) {
-        $('#form-error').text('Password must have at least 6 characters');
-        return false;
-      }
-      $.ajax({
-        url: formTarget,
-        type: 'POST',
-        data: JSON.stringify({ "email": email, "password": password }),
-        type: 'POST',
-        contentType: 'application/json'
-      }).done(function (response) {
-        window.location.href = "/registrationsuccess";
-      }).fail(function (response, error) {
-        $('#form-error').text(JSON.parse(response.responseText).error);
-      });
-    });
-  </script>
 </body>
-
 </html>
