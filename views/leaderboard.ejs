@@ -398,12 +398,25 @@
       </div>
   </footer>
   <div class="context">
-    <div class="display">
-      <h1>Email verification failed</h1>
-      <p>We are unable to verify your email id.  Kindly proceed with your official email or contact Event Committee.</p>
-        <a href="/register" class="btn is-white">Sign up</a>
+    <div class="display" id="main-screen">
+      <h1>Leaderboard</h1>
+      <table>
+        <tr>
+          <th>Email</th>
+          <th>Count</th>
+        </tr>
+        <% for(var i=0; i < data.length; i++) { %>
+          <tr>
+            <td>
+              <%= data[i].email %>
+            </td>
+            <td>
+              <%= data[i].count %>
+            </td>
+          </tr>
+          <% } %>
+      </table>
     </div>
   </div>
 </body>
-
 </html>

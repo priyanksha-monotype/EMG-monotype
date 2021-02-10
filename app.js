@@ -1,188 +1,183 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const bodyParser = require("body-parser");
-const passport = require("passport");
-const LocalStrategy = require('passport-local');
-const passportLocalMongoose = require('passport-local-mongoose');
-const nodemailer = require('nodemailer');
+'use strict';
 
-// User model
-const User = require('./model/userDetails.js');
-const PORT = 3000;
+const express = require('express');
+const path = require('path');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const bodyParser = require("body-parser");
+const mongoose = require('mongoose');
 
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://metadatapreprod:c9xkVcXkClOTAMzN@metadatapreprod-cn7ye.mongodb.net/EMG", { useNewUrlParser: true });
 
-let app = express();
-// Parse request body as JSON
+const nodemailer = require('nodemailer');
+
+// User model
+const User = require('./model/userDetails.js');
+const PORT = 3011;
+
+const app = express();
+
 app.set("view engine", "ejs");
+app.set("views", __dirname + "/views");
+
+app.use(session({
+  secret: 'secret token',
+  resave: false,
+  saveUninitialized: true,
+}));
+
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/assets', express.static(path.join(__dirname, "/assets")));
 
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use(require("express-session")({
-  secret: "EMG",
-  resave: false,
-  saveUninitialized: false
-}));
-
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-passport.use(new LocalStrategy(
-  function (username, password, done) {
-    User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });
-  }
-));
-
-function isLoggedIn(request, response, next) {
-  if (request.isAuthenticated()) {
-    return next();
-  }
-  response.redirect('/login');
-}
 
 const transporter = nodemailer.createTransport({
-    service: 'outlook',
-    auth: {
-      user: 'sumit.mann@monotype.com', //msipl email
-      pass: 'EKan$h2019'  //msipl paassword
-    }
-  });
-  
-const mailOptions = {
-    from: 'sumit.mann@monotype.com',  //msipl email
-    subject: 'Sending Email to test',
-};
-
-// home route
-app.get("/", function (req, res) {
-  res.render("home");
+  service: 'outlook',
+  auth: {
+    user: 'emg@monotype.com', //msipl email
+    pass: 'MonoUser123#'  //msipl paassword
+  }
 });
 
-// dahboard route
-app.get("/dashboard", function (req, res) {
-  res.render("dashboard");
-}); 
-  
-// Route for creating a new User
+const mailOptions = {
+  from: 'emg@monotype.com',  //msipl email
+  subject: 'Sending Email to test',
+};
+
+app.get("/", (req, res) => {
+  res.render('home');
+});
+
+app.get('/dashboard', function (req, res) {
+  if (!req.session.user) {
+    res.redirect('login');
+  } else {
+    res.render('dashboard');
+  }
+});
+
 app.get("/registration", (req, res) => {
-  res.render("registration");
+  res.render('registration');
+});
+
+app.get("/login", (req, res) => {
+  res.render('login');
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    let user = await User.findOne({ username: req.body.email });
+    if (user) {
+      if (user.isVerified) {
+        if (user.password == req.body.password) {
+          req.session.user = {
+            username: user.username,
+          };
+          return res.status(200).json({ success: "Sign in successful." });
+        } else {
+          return res.status(401).json({ error: "Password is incorrect." });
+        }
+      } else {
+        return res.status(401).json({ error: "Email is not verified. Kindly check your email to proceed further." });
+      }
+    } else {
+      return res.status(400).json({ error: "No user found." });
+    }
+  } catch (err) {
+    return res.status(500).json({ error: "Something went wrong" });
+  }
 });
 
 app.post("/registration", function (req, res) {
-  console.log("Req", req.body);
-  const { userEmail, userPassword } = req.body;
-  let email = userEmail.toLocaleLowerCase();
+  const { email, password } = req.body;
+  User.create({ username: email.toLocaleLowerCase(), password })
+    .then(function (user) {
+      mailOptions.to = user.username;
+      const buff = new Buffer(user.username);
+      const encodedUsername  = buff.toString('base64');
+      const link = "http://localhost:3011/verifyEmail?emailId=" + encodedUsername;
+      mailOptions.html = 'Thank you for your registration!! Kindly verify your email. <a href="' + link + '">Verify!!</a>'
 
-  User.register(new User(
-    { username: email, isVerified: false }), userPassword, function (err, user) {
-      if (!err) {
-        passport.authenticate('local')(req, res, () => {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          mailOptions.to = email;
-          const link = "http://localhost:3000/verifyEmail?emailId=" + email;
-          mailOptions.html = 'Thanks for registration!! Please verify your email. <a href="' + link + '">Verify!!</a>'
-          transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-              res.json('Unable to send verificaition email.')
-            } else {
-              res.json({ success: true, status: 'We have sent a verification email to you. You need to verify your email to proceed further.' });
-            }
-        });
-        });
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          return res.status(401).json({ error: "Error sending verification email. Kindly contact to Event Committee." });
+        } else {
+          return res.status(200).json({ success: "We have sent a verification email to you. Please verify your email." });
+        }
+      });
+    })
+    .catch(function (err) {
+      if (err.code == 11000) {
+        return res.status(401).json({ error: "This email account is already registered." });
       } else {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({ err: 'This email is already registered. Please contact EMG if you haven\'t registered earlier.' });
+        return res.status(401).json({ error: "Something went wrong." });
       }
+
     });
 });
 
-// Route for verifying user email
-app.get("/verifyEmail", function(req, res) {
-    console.log("VerifyEmail start");
-    const filter = { username: req.query.emailId.toLocaleLowerCase() };
-    const update = { isVerified: true };
-    User.findOneAndUpdate(filter, update)
-    .then((result) => {
-      res.render("verificationsuccess");
-    }).catch(function(err) {
-        res.render("verificationfail");
-      });
-});
-  
-// route for login
-app.get("/login", (req, res) => {
-  res.render("login");
-});
+app.post("/updateForEntry", async (req, res) => {
+  const { sendToEmail } = req.body;
+  const sendEmailTo = sendToEmail.toLocaleLowerCase();
+  const senderEmail = req.session.user.username;
+  if (senderEmail == sendEmailTo) {
+    return res.status(401).json({ error: "Nice try, please send getting to your colleague :)" });
+  }
 
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/dashboard',
-  failureRedirect: '/login'
-}));
-
-
-// Route for posting the data
-app.post("/updateForEntry", function(req, res) {
-  console.log("Adding rose entry");
-  const { emailId, sendToEmail} = req.body;
-  const filter = { userEmail: emailId.toLocaleLowerCase() };
-  const update = { sendToEmailId: sendToEmail };
-  //Check the user sending rose if he had already sent the email
-
-  User.findOne({userEmail: emailId.toLocaleLowerCase()}).then((user) => {
-    //check if user account is verified
-    if(user.isVerified)  {
-      //check if user already sent roses to someone
-      if(user.sendToEmailId) {
-        res.json('You already send roses for someone!!');
+  try {
+    let user = await User.findOne({ username: senderEmail });
+    if (user.isVerified) {
+      if (user.sendToEmailId) {
+        return res.status(401).json({ error: "You have already sent greetings to this colleague." });
       } else {
-        //update sending user entry for rose
-        User.findOneAndUpdate(filter, update)
-        .then((resp) => {
-          const filter = { userEmail: sendToEmail.toLocaleLowerCase() };
-          const update = { receivedFromEmailId: emailId };
-          // create or update receiver's entry 
-          User.findOneAndUpdate(filter, update, { upsert: true, new: true, setDefaultsOnInsert: true })
-            .then(() => {
-              console.log("Updation receiver success");
-            }).catch((e) => { 
-              console.log(e, 'Updation receiver failed');
-            });
-          console.log("Updation sender success");
-          res.json(resp);
-        })
-          .catch(function(err) {
-            res.json(err);
-            console.log("Updation sender failed", err);
+        const filter = { username: senderEmail };
+        const update = { sendToEmailId: sendToEmail };
+        User.findOneAndUpdate(filter, update , (err, result) => {
+          if(!err) {
+            return res.status(200).json({ success: "Greeting sent successfully." });
+          }
+          })
+          .catch(function (err) {
+            return res.status(401).json({ error: "Unable to send greeting. Please try again." });
           });
       }
     } else {
-      throw Error('Email id needs to be verified.');
+      return res.status(401).json({ error: "Your email is not verified." });
     }
-  })
-  .catch(function(err) {
-    console.log("Invalid user id.", err);
-    res.json('Email id either doesn`t exist or not verified.');
-  });
+  } catch (err) {
+    return res.status(500).json({ error: "Something went wrong." });
+  }
 });
 
-  // Start the server
-  app.listen(PORT, function() {
-    console.log("Listening on port " + PORT + ".");
-  });
+app.get("/verifyEmail", function (req, res) {
+  console.log("VerifyEmail start");
+  const buff = new Buffer(req.query.emailId, 'base64');
+  const emailId = buff.toString('ascii');
+  const filter = { username: emailId.toLocaleLowerCase() };
+  const update = { isVerified: true };
+  User.findOneAndUpdate(filter, update)
+    .then((result) => {
+      res.render("verificationsuccess");
+    }).catch(function (err) {
+      res.render("verificationfail");
+    });
+});
+
+app.get("/signupsuccess", function (req, res) {
+  res.render("signupsuccess");
+});
+
+app.get("/leaderboard", function (req, res) {
+  const leadersData = [
+    { 'email': 'priyanksha.srivastva@monotype.com', 'count': 4 },
+    { 'email': 'sumit.mann@monotype.com', 'count': 0 },
+  ];
+  res.render("leaderboard", { data: leadersData });
+});
+
+// Start the server
+app.listen(PORT, function () {
+  console.log("Listening on port " + PORT + ".");
+});

@@ -431,13 +431,13 @@
       $.ajax({
         url: formTarget,
         type: 'POST',
-        data: JSON.stringify({ "userEmail": email, "userPassword": password }),
+        data: JSON.stringify({ "email": email, "password": password }),
         type: 'POST',
         contentType: 'application/json'
       }).done(function (response) {
-        $('#form-error').text(response);
+        window.location.href = "/signupsuccess";
       }).fail(function (response, error) {
-        $('#form-error').text(response.responseText);
+        $('#form-error').text(JSON.parse(response.responseText).error);
       });
     });
   </script>

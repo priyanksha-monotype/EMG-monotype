@@ -89,6 +89,7 @@
       border-top: 1px solid rgba(255, 255, 255, 0.6);
       border-left: 1px solid rgba(255, 255, 255, 0.6);
       box-shadow: 10px 10px 10px rgb(0 0 0 / 20%);
+      box-sizing: border-box;
     }
 
     h1 {
@@ -301,4 +302,16 @@
       font-family: 'Helvetica Now MT Micro W01 Rg';
       padding: 12px;
       text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border: 1px solid  rgba(255, 255, 255, 0.2);
+      border-collapse: collapse;
+    }
+    table td, table th{
+      border: 1px solid  rgba(255, 255, 255, 0.2);
+      text-align: left;
+      padding: 6px;
+      color: #fff;
     }
