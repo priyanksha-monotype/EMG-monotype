@@ -405,7 +405,10 @@
         <form class="form" id="main-form">
           <div class="error" id="form-error"></div>
           <input type="email" class="input-text" id="email" placeholder="Email Id (e.g. abc@monotype.com)" />
-          <button type="submit" class="btn" id="form-submit">Submit</button>
+          <button type="submit" class="btn" id="form-submit">
+            <span class="text">Submit</span>
+            <span class="load"></span>
+          </button>
         </form>
     </div>
     <div class="display is-hidden" id="greeting-success">
@@ -431,7 +434,8 @@
         $('#form-error').text('Enter valid monotype.com email id (e.g. abc@monotype.com)');
         return false;
       }
-
+      const btn = $(this);
+      btn.addClass('is-processing');
       $.ajax({
         url: formTarget,
         type: 'POST',
@@ -439,11 +443,13 @@
         type: 'POST',
         contentType: 'application/json'
       }).done(function (response) {
+        btn.removeClass('is-processing');
         $('#main-screen').addClass('is-hidden');
         $('#email').val('');
         $('#greeting-success').removeClass('is-hidden');
       }).fail(function (response, error) {
         $('#form-error').text(JSON.parse(response.responseText).error);
+        btn.removeClass('is-processing');
       });
     });
   </script>

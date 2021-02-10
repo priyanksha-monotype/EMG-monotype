@@ -404,7 +404,10 @@
         <div class="error" id="form-error"></div>
         <input type="email" class="input-text" id="email" placeholder="Email Id (e.g. abc@monotype.com)" />
         <input type="password" class="input-text" id="password" placeholder="Password" />
-        <button type="submit" class="btn" id="form-submit">Submit</button>
+        <button type="submit" class="btn" id="form-submit">
+          <span class="text">Submit</span>
+          <span class="load"></span>
+        </button>
         <p class="para">Already have an account</p>
         <a href="/login" class="btn is-white">Sign in</a>
       </form>
@@ -428,6 +431,8 @@
         $('#form-error').text('Password must have at least 6 characters');
         return false;
       }
+      const btn = $(this);
+      btn.addClass('is-processing');
       $.ajax({
         url: formTarget,
         type: 'POST',
@@ -437,6 +442,7 @@
       }).done(function (response) {
         window.location.href = "/signupsuccess";
       }).fail(function (response, error) {
+        btn.removeClass('is-processing');
         $('#form-error').text(JSON.parse(response.responseText).error);
       });
     });
