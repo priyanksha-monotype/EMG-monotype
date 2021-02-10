@@ -95,7 +95,9 @@ app.post("/registration", function (req, res) {
   User.create({ username: email.toLocaleLowerCase(), password })
     .then(function (user) {
       mailOptions.to = user.username;
-      const link = "http://localhost:3000/verifyEmail?emailId=" + user.username;
+      const buff = new Buffer(user.username);
+      const encodedUsername  = buff.toString('base64');
+      const link = "http://localhost:3011/verifyEmail?emailId=" + encodedUsername;
       mailOptions.html = 'Thanks for registration!! Please verify your email. <a href="' + link + '">Verify!!</a>'
 
       transporter.sendMail(mailOptions, function (error, info) {
@@ -154,7 +156,9 @@ app.post("/updateForEntry", async (req, res) => {
 
 app.get("/verifyEmail", function (req, res) {
   console.log("VerifyEmail start");
-  const filter = { username: req.query.emailId.toLocaleLowerCase() };
+  const buff = new Buffer(req.query.emailId, 'base64');
+  const emailId = buff.toString('ascii');
+  const filter = { username: emailId.toLocaleLowerCase() };
   const update = { isVerified: true };
   User.findOneAndUpdate(filter, update)
     .then((result) => {
