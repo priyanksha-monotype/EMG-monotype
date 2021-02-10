@@ -8,13 +8,13 @@ const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://metadatapreprod:c9xkVcXkClOTAMzN@metadatapreprod-cn7ye.mongodb.net/EMG", { useNewUrlParser: true });
+mongoose.connect("mongodb+srv://emg:0f1xLPWeGVO3bG1p@metadatapreprod-cn7ye.mongodb.net/EMG", { useNewUrlParser: true });
 
 const nodemailer = require('nodemailer');
 
 // User model
 const User = require('./model/userDetails.js');
-const PORT = 3011;
+const PORT = 80;
 
 const app = express();
 
@@ -97,7 +97,7 @@ app.post("/registration", function (req, res) {
       mailOptions.to = user.username;
       const buff = new Buffer(user.username);
       const encodedUsername  = buff.toString('base64');
-      const link = "http://localhost:3011/verifyEmail?emailId=" + encodedUsername;
+      const link = "http://localhost:80/verifyEmail?emailId=" + encodedUsername;
       mailOptions.html = 'Thank you for your registration!! Kindly verify your email. <a href="' + link + '">Verify!!</a>'
 
       transporter.sendMail(mailOptions, function (error, info) {
