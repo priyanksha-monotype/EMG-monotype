@@ -43,7 +43,6 @@ const transporter = nodemailer.createTransport({
 
 const mailOptions = {
   from: 'emg@monotype.com',  //msipl email
-  subject: 'Sending Email to test',
 };
 
 app.get("/", (req, res) => {
@@ -95,6 +94,7 @@ app.post("/registration", function (req, res) {
   User.create({ username: email.toLocaleLowerCase(), password })
     .then(function (user) {
       mailOptions.to = user.username;
+      mailOptions.subject = 'Verification email';
       const buff = new Buffer(user.username);
       const encodedUsername  = buff.toString('base64');
       const link = "http://18.207.193.14/verifyEmail?emailId=" + encodedUsername;
@@ -136,6 +136,17 @@ app.post("/updateForEntry", async (req, res) => {
         const update = { sendToEmailId: sendToEmail };
         User.findOneAndUpdate(filter, update , (err, result) => {
           if(!err) {
+            mailOptions.to = sendToEmail;
+            mailOptions.subject = 'Greetings for you!!';
+            mailOptions.html = ''
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          return res.status(401).json({ error: "Error sending greetings. Kindly contact to Event Committee." });
+        } else {
+          return res.status(200).json({ success: "Greeting sent successfully." });
+        }
+      });
             return res.status(200).json({ success: "Greeting sent successfully." });
           }
           })
