@@ -130,7 +130,7 @@ app.post("/updateForEntry", async (req, res) => {
     let user = await User.findOne({ username: senderEmail });
     if (user.isVerified) {
       if (user.sendToEmailId) {
-        return res.status(401).json({ error: "You have already sent greetings to this colleague." });
+        return res.status(401).json({ error: "We have already shared your greeting. Thank you for your participation." });
       } else {
         const filter = { username: senderEmail };
         const update = { sendToEmailId: sendToEmail };
@@ -138,7 +138,7 @@ app.post("/updateForEntry", async (req, res) => {
           if(!err) {
             mailOptions.to = sendToEmail;
             mailOptions.subject = 'Greetings for you!!';
-            mailOptions.html = ''
+            mailOptions.html = '<img src="../assets/Valentine-greeting.png">';
 
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
