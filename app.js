@@ -141,12 +141,10 @@ app.post("/updateForEntry", async (req, res) => {
             mailOptions.html = ''
 
       transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          return res.status(401).json({ error: "Error sending greetings. Kindly contact to Event Committee." });
-        } else {
-          return res.status(200).json({ success: "Greeting sent successfully." });
-        }
-      });
+          if (error) {
+            return res.status(401).json({ error: "Error sending greetings. Kindly contact to Event Committee." });
+          }
+          });
             return res.status(200).json({ success: "Greeting sent successfully." });
           }
           })
