@@ -138,7 +138,7 @@ app.post("/updateForEntry", async (req, res) => {
           if(!err) {
             mailOptions.to = sendToEmail;
             mailOptions.subject = 'Greetings for you!!';
-            mailOptions.html = '<img src="../assets/Valentine-greeting.png">';
+            mailOptions.html = '<img src="http://18.207.193.14/assets/Valentine-greeting.png">';
 
       transporter.sendMail(mailOptions, function (error, info) {
           if (error) {
