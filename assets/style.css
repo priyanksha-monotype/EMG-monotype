@@ -344,3 +344,42 @@ table th {
   padding: 6px;
   color: #fff;
 }
+
+.animation-panel {
+  justify-content: space-between;
+  display: flex;
+  padding: 10px 0 30px;
+  position: relative;
+}
+
+.animation-panel svg {
+  opacity: 0.6;
+  filter: hue-rotate(110deg);
+}
+@keyframes moveL {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    transform: rotateY(90deg);
+  }
+  99% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% - 90px);
+  }
+}
+
+.animation-panel .flowers {
+  position: absolute;
+  width: 60px;
+  left: 30px;
+  top: 5px;
+  opacity: 0;
+}
+
+.is-animating .flowers {
+  animation: moveL 5s linear;
+}
+
