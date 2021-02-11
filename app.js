@@ -179,11 +179,26 @@ app.get("/signupsuccess", function (req, res) {
 });
 
 app.get("/leaderboard", function (req, res) {
-  const leadersData = [
-    { 'email': 'priyanksha.srivastva@monotype.com', 'count': 4 },
-    { 'email': 'sumit.mann@monotype.com', 'count': 0 },
-  ];
-  res.render("leaderboard", { data: leadersData });
+  const leadersData = [];
+ User.aggregate([
+    {
+       $group: { 
+          _id: "$sendToEmailId", 
+          count: { $sum: 1}
+       }
+    },
+    {
+      $sort:{'count':-1,'updatedAt':1}
+    }
+  ]).then((result) => {
+    console.log(result);
+    result.forEach((data) => {
+      if(data._id) {
+        leadersData.push({ 'email': data._id, 'count': data.count });
+      }
+    });
+    res.render("leaderboard", { data: leadersData.slice(0,10) });
+  });
 });
 
 // Start the server
