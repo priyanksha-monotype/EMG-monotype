@@ -123,7 +123,7 @@ app.post("/updateForEntry", async (req, res) => {
   const sendEmailTo = sendToEmail.toLocaleLowerCase();
   const senderEmail = req.session.user.username;
   if (senderEmail == sendEmailTo) {
-    return res.status(401).json({ error: "Nice try, please send getting to your colleague :)" });
+    return res.status(401).json({ error: "Nice try, please send greeting to your colleague :)" });
   }
 
   try {
