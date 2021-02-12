@@ -184,11 +184,14 @@ app.get("/leaderboard", function (req, res) {
     {
        $group: { 
           _id: "$sendToEmailId", 
-          count: { $sum: 1}
+          count: { $sum: 1},
+          updateTime:{
+            $max:"$updatedAt"
+         }
        }
     },
     {
-      $sort:{'count':-1,'updatedAt':1}
+      $sort:{'count':-1,'updateTime':1}
     }
   ]).then((result) => {
     console.log(result);
