@@ -133,7 +133,7 @@ app.post("/updateForEntry", async (req, res) => {
         return res.status(401).json({ error: "We have already shared your greeting. Thank you for your participation." });
       } else {
         const filter = { username: senderEmail };
-        const update = { sendToEmailId: sendToEmail };
+        const update = { sendToEmailId: sendEmailTo };
         User.findOneAndUpdate(filter, update , (err, result) => {
           if(!err) {
             mailOptions.to = sendToEmail;
